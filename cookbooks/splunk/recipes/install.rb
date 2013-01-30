@@ -1,5 +1,11 @@
-#
-# Cookbook Name:: splunk
+user "#{node[:splunk][:user]}"  do
+ action :create
+ system true
+ shell "/bin/bash"
+end 
+
+directory node[:splunk][:installdir] do   
+ookbook Name:: splunk
 # Recipe:: default
 #
 # Copyright 2012, YOUR_COMPANY_NAME
@@ -11,19 +17,15 @@ rightscale_marker :begin
 
 log "installing Splunk"
 
-user "#{node[:splunk][:user]}"  do
- action :create
- system true
- shell "/bin/bash"
+set_user "#{node[:splunk][:user]}"
+
+directory node[:splunk][:installdir] do  
+ owner "#{node[:splunk][:user]}"
+ mode "0755"  
+ action :create 
 end 
 
-directory node[:splunk][:installdir] do   
-  owner "#{node[:splunk][:user]}"
-  mode "0755"   
-  action :create 
-end 
-
-remote_file "#{node[:splunk][:installdir]}/splunk.tar" do   
+remote_file "#{node[:splunk][:installdir]}/splunk.tar" do  
  source node[:splunk][:installfile]
  action :create_if_missing 
 end 
@@ -32,10 +34,38 @@ bash "install_splunk" do
  cwd node[:splunk][:installdir]
  code <<-EOH
   tar -xvf splunk.tar
- EOH
+  EOH
 end 
+
+template "#{node[:splunk][:installdir]}/splunk/bin/startsplunk" do
+ source "startstopsplunk.erb"
+ mode 0755
+ action :create
+ variables({
+  :action => "start"
+         })
+end
+
+template "#{node[:splunk][:installdir]}/splunk/bin/stopsplunk" do
+ source "startstopsplunk.erb"
+ mode 0755
+ action :create
+ variables({
+  :action => "stop"
+         })
+end
+
+template "#{node[:splunk][:installdir]}/splunk/bin/restartsplunk" do
+ source "startstopsplunk.erb"
+ mode 0755
+ action :create
+ variables({
+   :action => "restart"
+          })
+end
 
 package "tree"
 
+log "The installation is complete" 
+    
 rightscale_marker :end
-
