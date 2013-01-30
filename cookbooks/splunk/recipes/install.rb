@@ -1,11 +1,5 @@
-user "#{node[:splunk][:user]}"  do
- action :create
- system true
- shell "/bin/bash"
-end 
-
-directory node[:splunk][:installdir] do   
-ookbook Name:: splunk
+#
+# Cookbook Name:: splunk
 # Recipe:: default
 #
 # Copyright 2012, YOUR_COMPANY_NAME
