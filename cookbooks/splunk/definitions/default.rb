@@ -1,4 +1,4 @@
-definte :set_user do
+define :set_user do
   user params[:name] do
    action :create
    shell "/bin/bash"
